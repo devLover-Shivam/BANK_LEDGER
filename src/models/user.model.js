@@ -85,7 +85,7 @@ const userSchema = new mongoose.Schema(
 */
 
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
 
     /*
         1. This middleware runs before a user document
@@ -109,7 +109,7 @@ userSchema.pre("save", async function (next) {
     */
 
     if (!this.isModified("password")) {
-        return next();
+        return ;
     }
 
 
@@ -143,7 +143,7 @@ userSchema.pre("save", async function (next) {
 
     this.password = hash;
 
-    return next();
+    
 });
 
 
@@ -172,9 +172,9 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (password) {
 
     return await bcrypt.compare(password, this.password);
+}
+ const userModel = mongoose.model("user", userSchema);
 
-    const userModel  =mongoose.model("user",userSchema);
 module.exports = userModel;
 
 // now the next step from here will be creating endpoints where a user can login as well as register. for this we will create new folder named routes.
-};
