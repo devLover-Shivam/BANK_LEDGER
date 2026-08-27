@@ -1,8 +1,6 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
-console.log("USER MODEL:", userModel);
-console.log("TYPE:", typeof userModel);
-console.log("FIND ONE:", typeof userModel.findOne);
+
 
 /*
     USER REGISTER CONTROLLER
@@ -129,7 +127,156 @@ async function userRegisterController(req, res) {
     });
 }
 
+/* 
+    USER LOGIN CONTROLLER
+    ---------------------
+
+    POST -> /api/auth/login
+
+    Login process:
+
+    1. Get email and password from the request body.
+    2. Find the user using the provided email.
+    3. If the user doesn't exist, return an error.
+    4. Compare the entered password with the stored hashed password.
+    5. If the password is incorrect, return an error.
+    6. If both email and password are correct, generate a JWT.
+    7. Store the JWT inside a cookie.
+    8. Send the user details and token back to the client.
+*/
+
+async function userLoginController(req, res) {
+
+    // Get the email and password entered by the user.
+
+    const { email, password } = req.body;
+
+
+    /*
+        Find the user using the email.
+
+        By default, the password field is excluded from
+        the query because our schema contains:
+
+        select: false
+
+        But we need the hashed password during login so that
+        bcrypt.compare() can compare the entered password
+        with the stored hash.
+
+        .select("+password") explicitly tells Mongoose:
+
+        "Include the password field in this particular query."
+
+        Important:
+        This does NOT make the password visible to the client.
+        It only includes the password field in this Mongoose
+        query result so that we can perform password verification.
+    */
+
+    const user = await userModel
+        .findOne({ email })
+        .select("+password");
+
+
+    /*
+        If no user was found with the provided email,
+        stop the login process.
+
+        We use the same error message for invalid email
+        and invalid password so that we don't reveal whether
+        an email exists in our database.
+    */
+
+    if (!user) {
+
+        return res.status(401).json({
+            message: "Email Or Password is INVALID"
+        });
+    }
+
+
+    /*
+        The user exists.
+
+        Now compare the password entered during login
+        with the hashed password stored in the database.
+
+        comparePassword() internally uses bcrypt.compare().
+    */
+
+    const isValidPassword = await user.comparePassword(password);
+
+
+    /*
+        If the entered password does not match the stored
+        hashed password, stop the login process.
+    */
+
+    if (!isValidPassword) {
+
+        return res.status(401).json({
+            message: "Email Or Password is INVALID"
+        });
+    }
+
+
+    /*
+        Both email and password are valid.
+
+        Now generate a JWT token.
+
+        The token contains the user's ID so that we can
+        identify the authenticated user in future requests.
+
+        The token will expire after 3 days.
+    */
+
+    const token = jwt.sign(
+        {
+            userID: user._id
+        },
+
+        process.env.JWT_PRIVATE_KEY,
+
+        {
+            expiresIn: "3d"
+        }
+    );
+
+
+    /*
+        Store the JWT token inside a cookie.
+
+        The browser can then automatically send this cookie
+        with subsequent requests to our server.
+    */
+
+    res.cookie("token", token);
+
+
+    /*
+        Login was successful.
+
+        Send the user's basic information and the JWT token
+        back to the client.
+
+        We intentionally do NOT send the password.
+    */
+
+    return res.status(200).json({
+
+        user: {
+            _id: user._id,
+            email: user.email,
+            name: user.name
+        },
+
+        token
+    });
+}
 
 module.exports = {
-    userRegisterController
+    userRegisterController,
+    userLoginController
 };
