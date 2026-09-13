@@ -12,10 +12,10 @@ async function authMiddleware(req, res, next){
             message: "Unauthorised Access, token is missing."
         })
     }
-
+    //using try catch to verify the token
     try{
         //verifying the token here
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_PRIVATE_KEY);
         
         const user = await userModel.findById(decoded.userID);
         req.user = user;

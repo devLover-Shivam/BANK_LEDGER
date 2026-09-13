@@ -4,8 +4,8 @@ const router = express.Router();
 const accountController = require("../controllers/account.controller")
 
 /* POST/API/ACCOUNTS 
-CREATE A NEW ACCOUNT
-PROTECTED ROUTE
+->CREATE A NEW ACCOUNT
+->PROTECTED ROUTE
 */
 
 router.post("/", authMiddleware.authMiddleware,accountController.createAccountController);
