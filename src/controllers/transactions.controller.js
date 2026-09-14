@@ -33,7 +33,7 @@ const emailService = require("../services/email.service");
 
 async function createTransaction(req,res){
 
-    //VALIDATE REQUEST
+//1. VALIDATE REQUEST
 
     const {fromAccount, toAccount, amount, idempotencyKey} = req.body;
 
@@ -56,7 +56,7 @@ async function createTransaction(req,res){
         })
     }
 
-    //2. VALIDATE IDEMPOTENCY KEY
+//2. VALIDATE IDEMPOTENCY KEY
 
     const isTransactionAlreadyExists = await transactionModel.findOne({
         idempotencyKey: idempotencyKey
@@ -99,4 +99,14 @@ if(fromUserAccount.status !== "ACTIVE" || toUserAccount.status !== "ACTIVE"){
     })
 }
 
+
+//4. DERIVE SENDER BALANCE FROM LEDGER
+
+const balance = await fromUserAccount.getBalance()
+if(balance<amount){
+    return res.status(400).json({
+        message: `Insufficient Balance!!!
+         Current balance is ${balance}. Requested amount is ${amount}`
+    })
+}
 }
