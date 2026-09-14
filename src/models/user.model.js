@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema(
                    .select("+password")
             */
             select: false
+        },
+        systemUser:{
+         type: Boolean,
+         default: false,
+         immutable: true,
+         select: false
         }
     },
     {

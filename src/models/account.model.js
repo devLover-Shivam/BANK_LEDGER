@@ -212,6 +212,11 @@ const accountSchema = new mongoose.Schema({
         default: "INR"
     },
 
+    systemUser: {
+    type: Boolean,
+    default: false
+    },
+
 
     /*
         BALANCE

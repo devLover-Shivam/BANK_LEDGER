@@ -308,6 +308,117 @@ Bank Ledger Team
           responsibilities separate rehti hain.
     */
 
+
+
+
+    await sendEmail(
+        userEmail,
+        subject,
+        text,
+        html
+    );
+}
+
+// ============================================================
+// SEND TRANSACTION FAILURE EMAIL
+// ============================================================
+
+/*
+    This function sends an email to the user when a transaction
+    could not be completed successfully.
+
+    It follows the same structure as sendTransactionEmail():
+
+    userEmail       → User's email address
+    name            → User's name
+    amount          → Transaction amount
+    transactionId   → ID of the failed transaction
+    transactionType → Type of transaction
+    status          → FAILED / REVERSED etc.
+*/
+
+async function sendTransactionFailureEmail(
+    userEmail,
+    name,
+    amount,
+    transactionId,
+    transactionType,
+    status
+) {
+
+    const subject = "Bank Ledger - Transaction Failed";
+
+
+    // Plain-text version of the email.
+    const text = `
+Hello ${name},
+
+Unfortunately, your transaction could not be completed on Bank Ledger.
+
+Transaction Details:
+
+Transaction ID: ${transactionId}
+Transaction Type: ${transactionType}
+Amount: ₹${amount}
+Status: ${status}
+
+Please check your account or try again later.
+
+Thank you for using Bank Ledger.
+
+Regards,
+Bank Ledger Team
+`;
+
+
+    // HTML version of the same email.
+    const html = `
+        <h2>Bank Ledger - Transaction Failed</h2>
+
+        <p>Hello ${name},</p>
+
+        <p>
+            Unfortunately, your transaction could not be
+            completed successfully on Bank Ledger.
+        </p>
+
+        <h3>Transaction Details</h3>
+
+        <p>
+            <strong>Transaction ID:</strong> ${transactionId}
+        </p>
+
+        <p>
+            <strong>Transaction Type:</strong> ${transactionType}
+        </p>
+
+        <p>
+            <strong>Amount:</strong> ₹${amount}
+        </p>
+
+        <p>
+            <strong>Status:</strong> ${status}
+        </p>
+
+        <br>
+
+        <p>
+            Please check your account or try again later.
+        </p>
+
+        <p>
+            Thank you for using Bank Ledger.
+        </p>
+
+        <p>
+            Regards,<br>
+            Bank Ledger Team
+        </p>
+    `;
+
+
+    // Reuse the common sendEmail() function
+    // instead of creating a new Nodemailer transporter.
     await sendEmail(
         userEmail,
         subject,
@@ -320,5 +431,6 @@ module.exports = {
     sendEmail,
     sendRegistrationEmail,
     sendTransactionEmail,
+    sendTransactionFailureEmail,
     transporter
 };

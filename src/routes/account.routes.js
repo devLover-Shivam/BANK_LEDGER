@@ -9,4 +9,13 @@ const accountController = require("../controllers/account.controller")
 */
 
 router.post("/", authMiddleware.authMiddleware,accountController.createAccountController);
+
+
+/* 
+-GET/API/ACCOUNTS
+-GET ALL ACCOUNTS OF THE LOGGED-IN USER
+-PROTECTED ROUTE
+*/
+
+router.get("/",authMiddleware.authMiddleware, accountController.getUserAccountsController)
 module.exports = router;
