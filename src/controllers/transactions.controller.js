@@ -55,4 +55,39 @@ async function createTransaction(req,res){
             message: "Invalid fromAccount ot toAccount"
         })
     }
+
+    //2. VALIDATE IDEMPOTENCY KEY
+
+    const isTransactionAlreadyExists = await transactionModel.findOne({
+        idempotencyKey: idempotencyKey
+    })
+
+    if(isTransactionAlreadyExists){
+        if(isTransactionAlreadyExists.status == "COMPLETED"){
+            res.status(200).json({
+                message: "Transaction Already Processed",
+                transaction: isTransactionAlreadyExists
+            })
+        }
+
+        if(isTransactionAlreadyExists.status == "PENDING"){
+            res.status(200).json({
+                message: "Transaction Is Still Processing",
+                transaction: isTransactionAlreadyExists
+            })
+        }
+        if(isTransactionAlreadyExists.status == "FAILED"){
+            res.status(500).json({
+                message: "Transaction Processing Failed, Please Retry",
+                transaction: isTransactionAlreadyExists
+            })
+        }
+        if(isTransactionAlreadyExists.status == "REVERSED"){
+            res.status(500).json({
+                message: "Transaction Was Reversed, Please Retry",
+                transaction: isTransactionAlreadyExists
+            })
+        }
+
+    }
 }
