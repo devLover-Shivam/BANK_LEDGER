@@ -286,6 +286,7 @@ ledgerSchema.pre('deleteMany',preventLedgerModification);
 */
 
 ledgerSchema.pre('updateOne',preventLedgerModification);
+ledgerSchema.pre('updateMany',preventLedgerModification);
 
 
 /*
