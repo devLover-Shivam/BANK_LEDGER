@@ -207,9 +207,118 @@ Bank Ledger Team
     );
 }
 
+async function sendTransactionEmail(
+    userEmail,
+    name,
+    amount,
+    transactionId,
+    transactionType,
+    status
+) {
+
+    const subject = "Bank Ledger - Transaction Update";
+
+
+    /*
+        Plain-text version of the email.
+
+        - Ye email ka simple text version hai.
+        - Agar email client HTML support nahi karta,
+          to ye version display hoga.
+    */
+
+    const text = `
+Hello ${name},
+
+Your transaction has been processed on Bank Ledger.
+
+Transaction Details:
+
+Transaction ID: ${transactionId}
+Transaction Type: ${transactionType}
+Amount: ₹${amount}
+Status: ${status}
+
+Thank you for using Bank Ledger.
+
+Regards,
+Bank Ledger Team
+`;
+
+
+    /*
+        HTML version of the email.
+
+        - Ye email ka formatted version hai.
+        - HTML ki help se transaction details ko
+          clearly present kar sakte hain.
+    */
+
+    const html = `
+        <h2>Bank Ledger - Transaction Update</h2>
+
+        <p>
+            Hello ${name},
+        </p>
+
+        <p>
+            Your transaction has been processed successfully
+            on Bank Ledger.
+        </p>
+
+        <h3>Transaction Details</h3>
+
+        <p>
+            <strong>Transaction ID:</strong> ${transactionId}
+        </p>
+
+        <p>
+            <strong>Transaction Type:</strong> ${transactionType}
+        </p>
+
+        <p>
+            <strong>Amount:</strong> ₹${amount}
+        </p>
+
+        <p>
+            <strong>Status:</strong> ${status}
+        </p>
+
+        <br>
+
+        <p>
+            Thank you for using Bank Ledger.
+        </p>
+
+        <p>
+            Regards,<br>
+            Bank Ledger Team
+        </p>
+    `;
+
+
+    /*
+        SEND TRANSACTION EMAIL
+
+        - sendTransactionEmail() transaction-specific email
+          ka content prepare karta hai.
+        - sendEmail() actual email send karne ki responsibility
+          handle karta hai.
+        - Isse email preparation aur email sending ki
+          responsibilities separate rehti hain.
+    */
+
+    await sendEmail(
+        userEmail,
+        subject,
+        text,
+        html
+    );
+}
 
 module.exports = {
     sendEmail,
     sendRegistrationEmail,
+    sendTransactionEmail,
     transporter
 };
