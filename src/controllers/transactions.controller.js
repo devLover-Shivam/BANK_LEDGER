@@ -212,22 +212,23 @@ async function createTransaction(req, res) {
         If something fails before commit,
         we can rollback the database transaction.
     */
-
+let transaction;
+try {
     const session = await mongoose.startSession();
 
     session.startTransaction();
 
 
-    try {
+  
 
         // Create the main transaction record first as PENDING.
-            const transaction = new transactionModel({
+             transaction = (await transactionModel.create([{
                 fromAccount,
                 toAccount,
                 amount,
                 idempotencyKey,
                 status: "PENDING"
-            });
+            }],{session}))[0];
 
             await transaction.save({ session });
 
@@ -275,6 +276,11 @@ async function createTransaction(req, res) {
                 ₹amount
         */
 
+        await(()=>{
+            return new Promise((resolve) => setTimeout(resolve, 10*1000));
+        })()
+        
+
         const creditLedgerEntry = await ledgerModel.create(
             [{
                 account: toAccount,
@@ -300,9 +306,11 @@ async function createTransaction(req, res) {
             So we can mark the transaction as COMPLETED.
         */
 
-        transaction.status = "COMPLETED";
-
-        await transaction.save({ session });
+        await transactionModel.findOneAndUpdate(
+            {_id:transaction._id},
+            {status: "COMPLETED"},
+            {session}
+        )
 
 
         // ========================================================
