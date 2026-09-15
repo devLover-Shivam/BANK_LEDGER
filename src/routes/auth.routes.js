@@ -8,6 +8,12 @@ router.post("/register", authController.userRegisterController)
 
 /* POST /api/auth/login */
 router.post("/login",authController.userLoginController);
+
+/* 
+POST/API/AUTH/LOGOUT
+*/
+router.post("/logout",authController.userLogoutController);
+
 //now this route wil be controlled from a different folder named controllers where we've created auth.controllers.js
 
 module.exports = router;
