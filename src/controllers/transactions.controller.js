@@ -221,16 +221,15 @@ async function createTransaction(req, res) {
     try {
 
         // Create the main transaction record first as PENDING.
-        const transaction = await transactionModel.create(
-            {
+            const transaction = new transactionModel({
                 fromAccount,
                 toAccount,
                 amount,
                 idempotencyKey,
                 status: "PENDING"
-            },
-            { session }
-        );
+            });
+
+            await transaction.save({ session });
 
 
         // ========================================================
@@ -250,12 +249,12 @@ async function createTransaction(req, res) {
         */
 
         const debitLedgerEntry = await ledgerModel.create(
-            {
+            [{
                 account: fromAccount,
                 amount: amount,
                 transaction: transaction._id,
                 type: "DEBIT"
-            },
+            }],
             { session }
         );
 
@@ -277,12 +276,12 @@ async function createTransaction(req, res) {
         */
 
         const creditLedgerEntry = await ledgerModel.create(
-            {
+            [{
                 account: toAccount,
                 amount: amount,
                 transaction: transaction._id,
                 type: "CREDIT"
-            },
+            }],
             { session }
         );
 
